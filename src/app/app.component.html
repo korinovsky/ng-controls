@@ -1,15 +1,27 @@
 <h1>Controls</h1>
-<div *ngFor="let control of controls.controls; let i = index">
-    <label *ngIf="mask[i]">
-        Control {{mask[i]}}
-        <input [appMasked]="mask[i]" [formControl]="control">
-    </label>
-    <label *ngIf="!mask[i]">
-        Control #{{i + 1}}
-        <input *ngIf="!mask[i]" [formControl]="control" appControl="sd">
-    </label>
-    <pre *ngIf="control.value !== null">"{{control.value}}"</pre>
-    <span *ngIf="control.value === null">null</span>
-    ({{changed[i]}})
-</div>
-<button (click)="setText()">set text</button>
+<form novalidate>
+    <div *ngFor="let control of controls.controls; let i = index" class="row form-group">
+        <label class="col-lg-2 col-md-3 col-form-label" for="control{{i}}">Control {{mask[i] ? mask[i] : i + 1}}</label>
+        <div class="col-lg-10 col-md-7">
+            <input [appMasked]="mask[i]" [class.is-invalid]="control.touched && control.invalid"
+                   [class.is-valid]="control.touched && control.valid" [formControl]="control" class="form-control"
+                   id="control{{i}}"
+                   required>
+            <small class="form-text text-muted">
+                <span *ngIf="control.value !== null">"{{control.value}}"</span>
+                <ng-container *ngIf="control.value === null">null</ng-container>
+                ({{changed[i]}})
+            </small>
+            <div *ngIf="control.hasError('required')" class="invalid-feedback">
+                Необходимо заполнить
+            </div>
+            <div *ngIf="control.hasError('incomplete')" class="invalid-feedback">
+                Заполнено не полностью
+            </div>
+            <div *ngIf="control.hasError('incorrect')" class="invalid-feedback">
+                Неверный формат
+            </div>
+        </div>
+    </div>
+    <button (click)="setText()" class="btn btn-secondary">set text</button>
+</form>

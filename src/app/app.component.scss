@@ -1,0 +1,9 @@
+.form-text {
+    span {
+        white-space: pre;
+    }
+
+    & + .invalid-feedback {
+        margin-top: 0;
+    }
+}

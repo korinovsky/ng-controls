@@ -1,5 +1,5 @@
 import {Directive, ElementRef, forwardRef, HostListener, Inject, Input, OnChanges, Optional, Renderer2} from '@angular/core';
-import {COMPOSITION_BUFFER_MODE, NG_VALUE_ACCESSOR} from '@angular/forms';
+import {AbstractControl, COMPOSITION_BUFFER_MODE, NG_VALIDATORS, NG_VALUE_ACCESSOR, ValidationErrors, Validator} from '@angular/forms';
 import {createTextMaskInputElement} from 'text-mask-core/dist/textMaskCore';
 import {ControlDirective} from './control.directive';
 import {TextMaskConfig} from 'angular2-text-mask';
@@ -7,17 +7,25 @@ import {homePhoneMask, mobilePhoneMask, rMask} from '../masks/masks';
 
 @Directive({
     selector: '[appMasked]',
-    providers: [{
-        provide: NG_VALUE_ACCESSOR,
-        useExisting: forwardRef(() => MaskedDirective),
-        multi: true
-    }]
+    providers: [
+        {
+            provide: NG_VALUE_ACCESSOR,
+            useExisting: forwardRef(() => MaskedDirective),
+            multi: true
+        },
+        {
+            provide: NG_VALIDATORS,
+            useExisting: forwardRef(() => MaskedDirective),
+            multi: true
+        },
+    ]
 })
-export class MaskedDirective extends ControlDirective implements OnChanges {
+export class MaskedDirective extends ControlDirective implements OnChanges, Validator {
     @Input('appMasked') type: MaskType;
     private placeholder;
     private maskedInputElement: any;
     private config: Config;
+    private onValidatorChange: () => void;
 
     constructor(
         protected renderer: Renderer2,
@@ -30,6 +38,14 @@ export class MaskedDirective extends ControlDirective implements OnChanges {
     ngOnChanges() {
         this.initMask();
         this.initPlaceholder();
+    }
+
+    registerOnValidatorChange(fn: () => void): void {
+        this.onValidatorChange = fn;
+    }
+
+    validate(control: AbstractControl): ValidationErrors | null {
+        return this.config && this.config.validate ? this.config.validate(control.value) : null;
     }
 
     valueChanged(value) {
@@ -64,6 +80,9 @@ export class MaskedDirective extends ControlDirective implements OnChanges {
             this.maskedInputElement = createTextMaskInputElement(
                 Object.assign({inputElement: this.elementRef.nativeElement}, this.config.maskConfig));
         }
+        if (this.onValidatorChange) {
+            this.onValidatorChange();
+        }
     }
 
     private applyMask(value) {
@@ -76,7 +95,7 @@ export class MaskedDirective extends ControlDirective implements OnChanges {
     }
 
     private clearValue(value) {
-        return value && this.config.clearRegexp ? value.replace(this.config.clearRegexp, '') : value;
+        return value && this.config && this.config.clearRegexp ? value.replace(this.config.clearRegexp, '') : value;
     }
 
     private removeTrailingSpaces() {
@@ -115,10 +134,22 @@ export interface Config {
     maskConfig: TextMaskConfig;
     transform?: (value: string) => string;
     clearRegexp?: RegExp;
+    validate?: (value: string) => ValidationErrors | null;
 }
 
-const toUpperCase = value =>
-    value.toUpperCase();
+const toUpperCase = value => value.toUpperCase();
+
+const validatePhone = (value: string, regexp: RegExp) => {
+    if (value) {
+        if (!regexp.test(value)) {
+            return {incorrect: true};
+        }
+        if (!/^\d{10}$/.test(value)) {
+            return {incomplete: true};
+        }
+    }
+    return null;
+};
 
 export const maskConfigs: { [key: string]: Config } = {
     [MaskType.Name]: {
@@ -134,11 +165,13 @@ export const maskConfigs: { [key: string]: Config } = {
             mask: mobilePhoneMask,
         },
         clearRegexp: /^\+7|[ _-]/g,
+        validate: value => validatePhone(value, /^9/),
     },
     [MaskType.Phone]: {
         maskConfig: {
             mask: homePhoneMask,
         },
         clearRegexp: /^\+7|_/g,
+        validate: value => validatePhone(value, /^[^9]/),
     },
 };
