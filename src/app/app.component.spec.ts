@@ -1,6 +1,6 @@
 import {async, TestBed} from '@angular/core/testing';
 import {AppComponent} from './app.component';
-import {MaskedDirective} from './directives/masked.directive';
+import {FormatDirective} from './directives/format.directive';
 import {ControlDirective} from './directives/control.directive';
 import {ReactiveFormsModule} from '@angular/forms';
 
@@ -9,7 +9,7 @@ describe('AppComponent', () => {
         TestBed.configureTestingModule({
             declarations: [
                 AppComponent,
-                MaskedDirective,
+                FormatDirective,
                 ControlDirective,
             ],
             imports: [

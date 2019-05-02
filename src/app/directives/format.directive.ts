@@ -3,28 +3,28 @@ import {AbstractControl, COMPOSITION_BUFFER_MODE, NG_VALIDATORS, NG_VALUE_ACCESS
 import {createTextMaskInputElement} from 'text-mask-core/dist/textMaskCore';
 import {ControlDirective} from './control.directive';
 import {TextMaskConfig} from 'angular2-text-mask';
-import {homePhoneMask, mobilePhoneMask, rMask} from '../masks/masks';
+import * as moment from 'moment';
 
 @Directive({
-    selector: '[appMasked]',
+    selector: '[appFormat]',
     providers: [
         {
             provide: NG_VALUE_ACCESSOR,
-            useExisting: forwardRef(() => MaskedDirective),
+            useExisting: forwardRef(() => FormatDirective),
             multi: true
         },
         {
             provide: NG_VALIDATORS,
-            useExisting: forwardRef(() => MaskedDirective),
+            useExisting: forwardRef(() => FormatDirective),
             multi: true
         },
     ]
 })
-export class MaskedDirective extends ControlDirective implements OnChanges, Validator {
-    @Input('appMasked') type: MaskType;
+export class FormatDirective extends ControlDirective implements OnChanges, Validator {
+    @Input('appFormat') type: Format;
     private placeholder;
     private maskedInputElement: any;
-    private config: Config;
+    private config: FormatConfig;
     private onValidatorChange: () => void;
 
     constructor(
@@ -75,7 +75,7 @@ export class MaskedDirective extends ControlDirective implements OnChanges, Vali
     }
 
     private initMask() {
-        this.config = maskConfigs[this.type];
+        this.config = formatConfigs[this.type];
         if (this.config) {
             this.maskedInputElement = createTextMaskInputElement(
                 Object.assign({inputElement: this.elementRef.nativeElement}, this.config.maskConfig));
@@ -124,13 +124,14 @@ export class MaskedDirective extends ControlDirective implements OnChanges, Vali
     }
 }
 
-export enum MaskType {
+export enum Format {
     Name = 'name',
     Mobile = 'mobile',
     Phone = 'phone',
+    Date = 'date',
 }
 
-export interface Config {
+interface FormatConfig {
     maskConfig: TextMaskConfig;
     transform?: (value: string) => string;
     clearRegexp?: RegExp;
@@ -139,39 +140,50 @@ export interface Config {
 
 const toUpperCase = value => value.toUpperCase();
 
-const validatePhone = (value: string, regexp: RegExp) => {
+const validateValue = (value: string, length: number, isValid?: () => boolean) => {
     if (value) {
-        if (!regexp.test(value)) {
-            return {incorrect: true};
-        }
-        if (!/^\d{10}$/.test(value)) {
+        if (value.length < length) {
             return {incomplete: true};
+        }
+        if (isValid && !isValid()) {
+            return {incorrect: true};
         }
     }
     return null;
 };
 
-export const maskConfigs: { [key: string]: Config } = {
-    [MaskType.Name]: {
-        maskConfig: {
-            mask: rMask(),
-            pipe: toUpperCase,
-            guide: false,
-        },
+const createMaskConfig = (regExp: RegExp, pipeFn?: (value: string, config: TextMaskConfig) => false | string | object) => {
+    return {
+        mask: raw => new Array(raw.length).fill(regExp),
+        pipe: pipeFn,
+        guide: false,
+    };
+};
+
+const formatConfigs: { [key: string]: FormatConfig } = {
+    [Format.Name]: {
+        maskConfig: createMaskConfig(/[А-ЯЁа-яё\- ]/, toUpperCase),
         transform: value => value.replace(/[ёЁ]/g, 'Е'),
     },
-    [MaskType.Mobile]: {
+    [Format.Mobile]: {
         maskConfig: {
-            mask: mobilePhoneMask,
+            mask: ['+', '7', ' ', /\d/, /\d/, /\d/, ' ', /\d/, /\d/, /\d/, '-', /\d/, /\d/, '-', /\d/, /\d/],
         },
         clearRegexp: /^\+7|[ _-]/g,
-        validate: value => validatePhone(value, /^9/),
+        validate: value => validateValue(value, 10, () => /^9/.test(value)),
     },
-    [MaskType.Phone]: {
+    [Format.Phone]: {
         maskConfig: {
-            mask: homePhoneMask,
+            mask: ['+', '7', ...new Array(10).fill(/\d/)],
         },
         clearRegexp: /^\+7|_/g,
-        validate: value => validatePhone(value, /^[^9]/),
+        validate: value => validateValue(value, 10, () => /^[^9]/.test(value)),
+    },
+    [Format.Date]: {
+        maskConfig: {
+            mask: [/\d/, /\d/, '.', /\d/, /\d/, '.', /\d/, /\d/, /\d/, /\d/],
+        },
+        clearRegexp: /_|[._]+$/g,
+        validate: value => validateValue(value, 10, () => moment(value, 'DD.MM.YYYY', true).isValid()),
     },
 };

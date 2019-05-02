@@ -1,6 +1,6 @@
 import {Component} from '@angular/core';
 import {FormArray, FormControl} from '@angular/forms';
-import {MaskType} from './directives/masked.directive';
+import {Format} from './directives/format.directive';
 
 @Component({
     selector: 'app-root',
@@ -13,12 +13,14 @@ export class AppComponent {
         new FormControl('фыв'),
         new FormControl('903'),
         new FormControl(),
+        new FormControl('12.12.2010'),
         new FormControl(),
     ]);
-    mask: MaskType[] = [
-        MaskType.Name,
-        MaskType.Mobile,
-        MaskType.Phone,
+    formats: Format[] = [
+        Format.Name,
+        Format.Mobile,
+        Format.Phone,
+        Format.Date,
     ];
     changed: number[] = [];
 

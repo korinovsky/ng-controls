@@ -1,10 +1,13 @@
 <h1>Controls</h1>
 <form novalidate>
     <div *ngFor="let control of controls.controls; let i = index" class="row form-group">
-        <label class="col-lg-2 col-md-3 col-form-label" for="control{{i}}">Control {{mask[i] ? mask[i] : i + 1}}</label>
+        <label class="col-lg-2 col-md-3 col-form-label"
+               for="control{{i}}">Control {{formats[i] ? formats[i] : i + 1}}</label>
         <div class="col-lg-10 col-md-7">
-            <input [appMasked]="mask[i]" [class.is-invalid]="control.touched && control.invalid"
-                   [class.is-valid]="control.touched && control.valid" [formControl]="control" class="form-control"
+            <input [appFormat]="formats[i]" [class.is-invalid]="control.touched && control.invalid"
+                   [class.is-valid]="control.touched && control.valid"
+                   [formControl]="control"
+                   class="form-control"
                    id="control{{i}}"
                    required>
             <small class="form-text text-muted">

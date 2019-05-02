@@ -5,13 +5,13 @@ import {TextMaskModule} from 'angular2-text-mask';
 import {AppComponent} from './app.component';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {ControlDirective} from './directives/control.directive';
-import {MaskedDirective} from './directives/masked.directive';
+import {FormatDirective} from './directives/format.directive';
 
 @NgModule({
     declarations: [
         AppComponent,
         ControlDirective,
-        MaskedDirective,
+        FormatDirective,
     ],
     imports: [
         BrowserModule,
