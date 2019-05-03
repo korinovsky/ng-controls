@@ -157,7 +157,7 @@ const validate = (value: string, length: number | { max?: number, min?: number }
         if (typeof length === 'number' && value.length !== length) {
             return {incomplete: true};
         }
-        if (typeof length === 'object' && value.length !== length) {
+        if (typeof length === 'object') {
             if (length.max && value.length > length.max) {
                 return {maxLength: true};
             }

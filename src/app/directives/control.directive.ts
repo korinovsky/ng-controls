@@ -23,7 +23,7 @@ export class ControlDirective implements ControlValueAccessor {
         @Optional() @Inject(COMPOSITION_BUFFER_MODE) protected compositionMode: boolean
     ) {
         if (this.compositionMode == null) {
-            this.compositionMode = !_isAndroid();
+            this.compositionMode = !isAndroid();
         }
     }
 
@@ -91,7 +91,7 @@ export class ControlDirective implements ControlValueAccessor {
     }
 }
 
-function _isAndroid() {
+function isAndroid() {
     const userAgent = getDOM() ? getDOM().getUserAgent() : '';
-    return /android (\d+)/.test(userAgent.toLowerCase());
+    return /Android/i.test(userAgent);
 }
