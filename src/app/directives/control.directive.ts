@@ -81,7 +81,9 @@ export class ControlDirective implements ControlValueAccessor {
     }
 
     controlTouched() {
-        this.onTouched();
+        if (this.onTouched) {
+            this.onTouched();
+        }
     }
 
     setInputValue(value) {

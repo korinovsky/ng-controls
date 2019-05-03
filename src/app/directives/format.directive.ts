@@ -135,6 +135,7 @@ export class FormatDirective extends ControlDirective implements OnChanges, Vali
 
 export enum Format {
     Name = 'name',
+    Patronymic = 'patronymic',
     Mobile = 'mobile',
     Phone = 'phone',
     Date = 'date',
@@ -151,10 +152,18 @@ const toUpperCase = value => value.toUpperCase();
 
 const removeTrailingSpaces = value => value.replace(/\s+$/, '');
 
-const validate = (value: string, length: number, isValid?: () => boolean) => {
+const validate = (value: string, length: number | { max?: number, min?: number }, isValid?: () => boolean) => {
     if (value) {
-        if (value.length < length) {
+        if (typeof length === 'number' && value.length !== length) {
             return {incomplete: true};
+        }
+        if (typeof length === 'object' && value.length !== length) {
+            if (length.max && value.length > length.max) {
+                return {maxLength: true};
+            }
+            if (length.min && value.length < length.min) {
+                return {minLength: true};
+            }
         }
         if (isValid && !isValid()) {
             return {incorrect: true};
@@ -175,7 +184,7 @@ const formatConfigs: { [key: string]: FormatConfig } = {
     [Format.Name]: {
         maskConfig: createMaskConfig(/[А-ЯЁа-яё -]/, toUpperCase),
         transform: value => value.replace(/[ёЁ]/g, 'Е'),
-        validate: value => validate(value, 0, () => /^[А-Я]+([\s-][А-Я]+){0,2}$/.test(value)),
+        validate: value => validate(value, {max: 50}, () => /^[А-Я]+([\s-][А-Я]+){0,2}$/.test(value)),
     },
     [Format.Mobile]: {
         maskConfig: {
@@ -199,3 +208,7 @@ const formatConfigs: { [key: string]: FormatConfig } = {
         validate: value => validate(value, 10, () => moment(value, 'DD.MM.YYYY', true).isValid()),
     },
 };
+
+formatConfigs[Format.Patronymic] = Object.assign({}, formatConfigs[Format.Name], {
+    validate: value => validate(value, {max: 35}, () => /^((?!НЕТ$)[А-Я]+([\s-][А-Я]+){0,2}|-)$/.test(value)),
+});

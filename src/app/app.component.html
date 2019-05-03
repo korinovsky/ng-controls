@@ -24,6 +24,12 @@
             <div *ngIf="control.hasError('incorrect')" class="invalid-feedback">
                 Некорректное значение
             </div>
+            <div *ngIf="control.hasError('maxLength')" class="invalid-feedback">
+                Превышено допустимое количество символов
+            </div>
+            <div *ngIf="control.hasError('minLength')" class="invalid-feedback">
+                Недостаточное количество символов
+            </div>
         </div>
     </div>
     <button (click)="validate()" class="btn btn-primary">Validate</button>

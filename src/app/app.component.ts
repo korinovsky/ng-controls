@@ -11,6 +11,7 @@ export class AppComponent {
     title = 'control';
     controls = [
         new FormControl('фыв'),
+        new FormControl(),
         new FormControl('803'),
         new FormControl('7'),
         new FormControl('12.12.2010'),
@@ -18,6 +19,7 @@ export class AppComponent {
     ];
     formats: Format[] = [
         Format.Name,
+        Format.Patronymic,
         Format.Mobile,
         Format.Phone,
         Format.Date,
@@ -36,7 +38,8 @@ export class AppComponent {
         this.controls[1].setValue('9870123456');
         this.controls[2].setValue('8670123456');
         this.controls[3].setValue('01.01.2000');
-        this.controls[4].setValue('asd');
+        this.controls[4].setValue('ОТЧ');
+        this.controls[5].setValue('asd');
     }
 
     validate() {
