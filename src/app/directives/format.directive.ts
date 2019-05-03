@@ -172,9 +172,11 @@ const validate = (value: string, length: number | { max?: number, min?: number }
     return null;
 };
 
+const regExpArray = (regExp: RegExp, length: number) => new Array(length).fill(regExp);
+
 const createMaskConfig = (regExp: RegExp, pipeFn?: (value: string, config: TextMaskConfig) => false | string | object) => {
     return {
-        mask: raw => new Array(raw.length).fill(regExp),
+        mask: raw => regExpArray(regExp, raw.length),
         pipe: pipeFn,
         guide: false,
     };
@@ -195,7 +197,7 @@ const formatConfigs: { [key: string]: FormatConfig } = {
     },
     [Format.Phone]: {
         maskConfig: {
-            mask: ['+', '7', ...new Array(10).fill(/\d/)],
+            mask: ['+', '7', ...regExpArray(/\d/, 10)],
         },
         clearRegexp: /^\+7|_/g,
         validate: value => validate(value, 10, () => /^[^79]/.test(value)),

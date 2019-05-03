@@ -11,18 +11,18 @@ export class AppComponent {
     title = 'control';
     controls = [
         new FormControl('фыв'),
-        new FormControl(),
         new FormControl('803'),
         new FormControl('7'),
         new FormControl('12.12.2010'),
         new FormControl(),
+        new FormControl(),
     ];
     formats: Format[] = [
         Format.Name,
-        Format.Patronymic,
         Format.Mobile,
         Format.Phone,
         Format.Date,
+        Format.Patronymic,
     ];
     changed: number[] = [];
 
