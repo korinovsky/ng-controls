@@ -1,6 +1,6 @@
 <h1>Controls</h1>
 <form novalidate>
-    <div *ngFor="let control of controls.controls; let i = index" class="row form-group">
+    <div *ngFor="let control of controls; let i = index" class="row form-group">
         <label class="col-lg-2 col-md-3 col-form-label"
                for="control{{i}}">Control {{formats[i] ? formats[i] : i + 1}}</label>
         <div class="col-lg-10 col-md-7">
@@ -22,9 +22,10 @@
                 Заполнено не полностью
             </div>
             <div *ngIf="control.hasError('incorrect')" class="invalid-feedback">
-                Неверный формат
+                Некорректное значение
             </div>
         </div>
     </div>
-    <button (click)="setText()" class="btn btn-secondary">set text</button>
+    <button (click)="validate()" class="btn btn-primary">Validate</button>
+    <button (click)="setText()" class="btn btn-secondary">Set text</button>
 </form>

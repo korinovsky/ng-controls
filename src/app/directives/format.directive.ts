@@ -91,16 +91,22 @@ export class FormatDirective extends ControlDirective implements OnChanges, Vali
     }
 
     private transformValue(value) {
-        return this.config.transform ? this.config.transform(value) : value;
+        return value && this.config.transform ? this.config.transform(value) : value;
     }
 
     private clearValue(value) {
-        return value && this.config && this.config.clearRegexp ? value.replace(this.config.clearRegexp, '') : value;
+        if (value) {
+            if (this.config && this.config.clearRegexp) {
+                value = value.replace(this.config.clearRegexp, '');
+            }
+            value = removeTrailingSpaces(value);
+        }
+        return value;
     }
 
     private removeTrailingSpaces() {
         const value = this.elementRef.nativeElement.value;
-        const transformed = value.replace(/\s+$/, '');
+        const transformed = removeTrailingSpaces(value);
         if (value !== transformed) {
             this.setInputValue(transformed);
             this.valueChanged(transformed);
@@ -120,6 +126,9 @@ export class FormatDirective extends ControlDirective implements OnChanges, Vali
     private clearPlaceHolder() {
         if (this.placeholder) {
             this.elementRef.nativeElement.placeholder = '';
+            if (this.elementRef.nativeElement.value === this.placeholder) {
+                this.maskedInputElement.update('');
+            }
         }
     }
 }
@@ -140,7 +149,9 @@ interface FormatConfig {
 
 const toUpperCase = value => value.toUpperCase();
 
-const validateValue = (value: string, length: number, isValid?: () => boolean) => {
+const removeTrailingSpaces = value => value.replace(/\s+$/, '');
+
+const validate = (value: string, length: number, isValid?: () => boolean) => {
     if (value) {
         if (value.length < length) {
             return {incomplete: true};
@@ -162,28 +173,29 @@ const createMaskConfig = (regExp: RegExp, pipeFn?: (value: string, config: TextM
 
 const formatConfigs: { [key: string]: FormatConfig } = {
     [Format.Name]: {
-        maskConfig: createMaskConfig(/[А-ЯЁа-яё\- ]/, toUpperCase),
+        maskConfig: createMaskConfig(/[А-ЯЁа-яё -]/, toUpperCase),
         transform: value => value.replace(/[ёЁ]/g, 'Е'),
+        validate: value => validate(value, 0, () => /^[А-Я]+([\s-][А-Я]+){0,2}$/.test(value)),
     },
     [Format.Mobile]: {
         maskConfig: {
             mask: ['+', '7', ' ', /\d/, /\d/, /\d/, ' ', /\d/, /\d/, /\d/, '-', /\d/, /\d/, '-', /\d/, /\d/],
         },
         clearRegexp: /^\+7|[ _-]/g,
-        validate: value => validateValue(value, 10, () => /^9/.test(value)),
+        validate: value => validate(value, 10, () => /^[^78]/.test(value)),
     },
     [Format.Phone]: {
         maskConfig: {
             mask: ['+', '7', ...new Array(10).fill(/\d/)],
         },
         clearRegexp: /^\+7|_/g,
-        validate: value => validateValue(value, 10, () => /^[^9]/.test(value)),
+        validate: value => validate(value, 10, () => /^[^79]/.test(value)),
     },
     [Format.Date]: {
         maskConfig: {
             mask: [/\d/, /\d/, '.', /\d/, /\d/, '.', /\d/, /\d/, /\d/, /\d/],
         },
         clearRegexp: /_|[._]+$/g,
-        validate: value => validateValue(value, 10, () => moment(value, 'DD.MM.YYYY', true).isValid()),
+        validate: value => validate(value, 10, () => moment(value, 'DD.MM.YYYY', true).isValid()),
     },
 };
