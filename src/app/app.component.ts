@@ -1,6 +1,6 @@
 import {Component} from '@angular/core';
 import {FormControl} from '@angular/forms';
-import {Format} from './directives/format.directive';
+import {Format} from './models/format.model';
 
 @Component({
     selector: 'app-root',
@@ -8,7 +8,6 @@ import {Format} from './directives/format.directive';
     styleUrls: ['./app.component.scss'],
 })
 export class AppComponent {
-    title = 'control';
     controls = [
         new FormControl('фыв'),
         new FormControl('803'),
