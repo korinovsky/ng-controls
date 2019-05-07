@@ -2,8 +2,8 @@ import {Directive, ElementRef, forwardRef, HostListener, Inject, Input, OnChange
 import {AbstractControl, COMPOSITION_BUFFER_MODE, NG_VALIDATORS, NG_VALUE_ACCESSOR, ValidationErrors, Validator} from '@angular/forms';
 import {createTextMaskInputElement} from 'text-mask-core/dist/textMaskCore';
 import {ControlDirective} from './control.directive';
-import {TextMaskConfig} from 'angular2-text-mask';
-import * as moment from 'moment';
+import {Format, FormatConfig} from '../models/format.model';
+import {formatConfig} from '../configs/format.config';
 
 @Directive({
     selector: '[appFormat]',
@@ -75,7 +75,7 @@ export class FormatDirective extends ControlDirective implements OnChanges, Vali
     }
 
     private initMask() {
-        this.config = formatConfigs[this.type];
+        this.config = formatConfig[this.type];
         if (this.config) {
             this.maskedInputElement = createTextMaskInputElement(
                 Object.assign({inputElement: this.elementRef.nativeElement}, this.config.maskConfig));
@@ -133,84 +133,4 @@ export class FormatDirective extends ControlDirective implements OnChanges, Vali
     }
 }
 
-export enum Format {
-    Name = 'name',
-    Patronymic = 'patronymic',
-    Mobile = 'mobile',
-    Phone = 'phone',
-    Date = 'date',
-}
-
-interface FormatConfig {
-    maskConfig: TextMaskConfig;
-    transform?: (value: string) => string;
-    clearRegexp?: RegExp;
-    validate?: (value: string) => ValidationErrors | null;
-}
-
-const toUpperCase = value => value.toUpperCase();
-
 const removeTrailingSpaces = value => value.replace(/\s+$/, '');
-
-const validate = (value: string, length: number | { max?: number, min?: number }, isValid?: () => boolean) => {
-    if (value) {
-        if (typeof length === 'number' && value.length !== length) {
-            return {incomplete: true};
-        }
-        if (typeof length === 'object') {
-            if (length.max && value.length > length.max) {
-                return {maxLength: true};
-            }
-            if (length.min && value.length < length.min) {
-                return {minLength: true};
-            }
-        }
-        if (isValid && !isValid()) {
-            return {incorrect: true};
-        }
-    }
-    return null;
-};
-
-const regExpArray = (regExp: RegExp, length: number) => new Array(length).fill(regExp);
-
-const createMaskConfig = (regExp: RegExp, pipeFn?: (value: string, config: TextMaskConfig) => false | string | object) => {
-    return {
-        mask: raw => regExpArray(regExp, raw.length),
-        pipe: pipeFn,
-        guide: false,
-    };
-};
-
-const formatConfigs: { [key: string]: FormatConfig } = {
-    [Format.Name]: {
-        maskConfig: createMaskConfig(/[А-ЯЁа-яё -]/, toUpperCase),
-        transform: value => value.replace(/[ёЁ]/g, 'Е'),
-        validate: value => validate(value, {max: 50}, () => /^[А-Я]+([\s-][А-Я]+){0,2}$/.test(value)),
-    },
-    [Format.Mobile]: {
-        maskConfig: {
-            mask: ['+', '7', ' ', /\d/, /\d/, /\d/, ' ', /\d/, /\d/, /\d/, '-', /\d/, /\d/, '-', /\d/, /\d/],
-        },
-        clearRegexp: /^\+7|[ _-]/g,
-        validate: value => validate(value, 10, () => /^[^78]/.test(value)),
-    },
-    [Format.Phone]: {
-        maskConfig: {
-            mask: ['+', '7', ...regExpArray(/\d/, 10)],
-        },
-        clearRegexp: /^\+7|_/g,
-        validate: value => validate(value, 10, () => /^[^79]/.test(value)),
-    },
-    [Format.Date]: {
-        maskConfig: {
-            mask: [/\d/, /\d/, '.', /\d/, /\d/, '.', /\d/, /\d/, /\d/, /\d/],
-        },
-        clearRegexp: /_|[._]+$/g,
-        validate: value => validate(value, 10, () => moment(value, 'DD.MM.YYYY', true).isValid()),
-    },
-};
-
-formatConfigs[Format.Patronymic] = Object.assign({}, formatConfigs[Format.Name], {
-    validate: value => validate(value, {max: 35}, () => /^((?!НЕТ$)[А-Я]+([\s-][А-Я]+){0,2}|-)$/.test(value)),
-});
