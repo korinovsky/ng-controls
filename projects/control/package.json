@@ -1,0 +1,13 @@
+{
+  "name": "control",
+  "version": "0.0.1",
+  "peerDependencies": {
+    "@angular/core": "^7.2.14",
+    "@angular/forms": "^7.2.14",
+    "@angular/platform-browser": "^7.2.14",
+    "@angular/platform-browser-dynamic": "^7.2.14",
+    "angular2-text-mask": "^9.0.0",
+    "moment": "^2.24.0",
+    "text-mask-core": "^5.1.2"
+  }
+}

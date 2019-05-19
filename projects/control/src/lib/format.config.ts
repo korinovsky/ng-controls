@@ -1,5 +1,5 @@
 import {TextMaskConfig} from 'angular2-text-mask';
-import {Format, FormatConfig} from '../models/format.model';
+import {Format, FormatConfig} from './format.model';
 import * as moment from 'moment';
 
 const toUpperCase = value => value.toUpperCase();

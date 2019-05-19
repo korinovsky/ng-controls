@@ -4,7 +4,7 @@
         <label class="col-lg-2 col-md-3 col-form-label"
                for="control{{i}}">Control {{formats[i] ? formats[i] : i + 1}}</label>
         <div class="col-lg-10 col-md-7">
-            <input [appFormat]="formats[i]" [class.is-invalid]="control.touched && control.invalid"
+            <input [libFormat]="formats[i]" [class.is-invalid]="control.touched && control.invalid"
                    [class.is-valid]="control.touched && control.valid"
                    [formControl]="control"
                    class="form-control"

@@ -1,6 +1,6 @@
 import {Component} from '@angular/core';
 import {FormControl} from '@angular/forms';
-import {Format} from './models/format.model';
+import {Format} from 'projects/control/src/lib/format.model';
 
 @Component({
     selector: 'app-root',

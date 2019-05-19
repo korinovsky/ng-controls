@@ -3,7 +3,7 @@ import {COMPOSITION_BUFFER_MODE, ControlValueAccessor, NG_VALUE_ACCESSOR} from '
 import {ɵgetDOM as getDOM} from '@angular/platform-browser';
 
 @Directive({
-    selector: '[appControl]',
+    selector: '[libControl]',
     providers: [{
         provide: NG_VALUE_ACCESSOR,
         useExisting: forwardRef(() => ControlDirective),

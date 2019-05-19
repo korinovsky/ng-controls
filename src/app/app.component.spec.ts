@@ -1,7 +1,7 @@
 import {async, TestBed} from '@angular/core/testing';
 import {AppComponent} from './app.component';
-import {FormatDirective} from './directives/format.directive';
-import {ControlDirective} from './directives/control.directive';
+import {FormatDirective} from '../../projects/control/src/lib/format.directive';
+import {ControlDirective} from '../../projects/control/src/lib/control.directive';
 import {ReactiveFormsModule} from '@angular/forms';
 
 describe('AppComponent', () => {

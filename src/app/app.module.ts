@@ -4,20 +4,18 @@ import {TextMaskModule} from 'angular2-text-mask';
 
 import {AppComponent} from './app.component';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
-import {ControlDirective} from './directives/control.directive';
-import {FormatDirective} from './directives/format.directive';
+import {ControlModule} from 'projects/control/src/lib/control.module';
 
 @NgModule({
     declarations: [
         AppComponent,
-        ControlDirective,
-        FormatDirective,
     ],
     imports: [
         BrowserModule,
         TextMaskModule,
         FormsModule,
         ReactiveFormsModule,
+        ControlModule
     ],
     providers: [],
     bootstrap: [AppComponent]

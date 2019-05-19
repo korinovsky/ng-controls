@@ -2,11 +2,11 @@ import {Directive, ElementRef, forwardRef, HostListener, Inject, Input, OnChange
 import {AbstractControl, COMPOSITION_BUFFER_MODE, NG_VALIDATORS, NG_VALUE_ACCESSOR, ValidationErrors, Validator} from '@angular/forms';
 import {createTextMaskInputElement} from 'text-mask-core/dist/textMaskCore';
 import {ControlDirective} from './control.directive';
-import {Format, FormatConfig} from '../models/format.model';
-import {formatConfig} from '../configs/format.config';
+import {Format, FormatConfig} from './format.model';
+import {formatConfig} from './format.config';
 
 @Directive({
-    selector: '[appFormat]',
+    selector: '[libFormat]',
     providers: [
         {
             provide: NG_VALUE_ACCESSOR,
@@ -21,7 +21,7 @@ import {formatConfig} from '../configs/format.config';
     ]
 })
 export class FormatDirective extends ControlDirective implements OnChanges, Validator {
-    @Input('appFormat') type: Format;
+    @Input('libFormat') type: Format;
     private placeholder;
     private maskedInputElement: any;
     private config: FormatConfig;
